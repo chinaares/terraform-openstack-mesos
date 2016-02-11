@@ -10,12 +10,3 @@ sudo apt-get install -y ansible
 mkdir -p ~/ansible/inventory
 touch ~/ansible/inventory/masters
 touch ~/ansible/inventory/slaves
-
-# Create the ansible config file
-cat > ~/.ansible.cfg <<EOF
-[defaults]
-inventory = ~/ansible/inventory
-host_key_checking = False
-EOF
-
-

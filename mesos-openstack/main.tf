@@ -128,6 +128,12 @@ resource "null_resource" "prep_config_server" {
    }
 
    provisioner "file" {
+      # Ansible config file
+      source = "confs/ansible.cfg"
+      destination = "~/.ansible.cfg"
+   }
+
+   provisioner "file" {
       # SSH private key. config server will need this to ssh
       # to the masters & slaves
       source = "${var.ssh_key_file}"
