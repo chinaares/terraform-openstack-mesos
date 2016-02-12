@@ -109,28 +109,16 @@ resource "null_resource" "prep_config_server" {
       private_key = "${file("${var.ssh_key_file}")}"
    }
 
-   provisioner "file" {
-      # Script to prepare the config server
-      source = "scripts/prep-config-server.sh"
-      destination = "~/prep-config-server.sh"
+   provisioner "local-exec" {
+      # Tar all files to be uploaded to the config server
+      command = "tar -cjf config-server-files.tar.bz2 ansible/ confs/ scripts/"
    }
 
    provisioner "file" {
-      # Script to update the ansible inventory files for masters
-      source = "scripts/update-inventory-masters.sh"
-      destination = "~/update-inventory-masters.sh"
-   }
-
-   provisioner "file" {
-      # Script to update the ansible inventory files for slaves
-      source = "scripts/update-inventory-slaves.sh"
-      destination = "~/update-inventory-slaves.sh"
-   }
-
-   provisioner "file" {
-      # Ansible config file
-      source = "confs/ansible.cfg"
-      destination = "~/.ansible.cfg"
+      # Tar ball of all configs, playbooks & templates that
+      # the config server needs
+      source = "config-server-files.tar.bz2"
+      destination = "~/config-server-files.tar.bz2"
    }
 
    provisioner "file" {
@@ -142,12 +130,20 @@ resource "null_resource" "prep_config_server" {
 
    provisioner "remote-exec" {
       inline = [
-         "chmod +x ~/prep-config-server.sh",
-         "chmod +x ~/update-inventory-masters.sh",
-         "chmod +x ~/update-inventory-slaves.sh",
+         "cd ~; tar -xjf config-server-files.tar.bz2",
+         "rm ~/config-server-files.tar.bz2",
+         "chmod +x ~/scripts/prep-config-server.sh",
+         "chmod +x ~/scripts/update-inventory-masters.sh",
+         "chmod +x ~/scripts/update-inventory-slaves.sh",
          "chmod 600 ~/.ssh/id_rsa",
-         "~/prep-config-server.sh"
+         "ln -sf ~/confs/ansible.cfg ~/.ansible.cfg",
+         "~/scripts/prep-config-server.sh"
       ]
+   }
+
+   provisioner "local-exec" {
+      # Cleanup the tar ball that was copied to the config server
+      command = "rm config-server-files.tar.bz2"
    }
 }
 
@@ -165,7 +161,7 @@ resource "null_resource" "prep_mesos_masters" {
 
    provisioner "remote-exec" {
       inline = [
-         "~/update-inventory-masters.sh ${join(" ", openstack_compute_instance_v2.mesos_masters.*.network.0.fixed_ip_v4)}",
+         "~/scripts/update-inventory-masters.sh ${join(" ", openstack_compute_instance_v2.mesos_masters.*.network.0.fixed_ip_v4)}",
       ]
    }
 }

@@ -3,15 +3,31 @@
   remote_user: ubuntu
   become: true
   tasks:
-  - name: add mesos apt key 
+  - name: add java repo (mesos depends on it)
+    apt_repository:
+       repo: ppa:webupd8team/java
+       state: present
+
+  - name: setup apt to accept licence quietly
+    shell: echo debconf shared/accepted-oracle-license-v1-1 select true | sudo debconf-set-selections
+
+  - name: install java
+    apt: name={{item}} state=installed update_cache: yes
+    with_items:
+       - oracle-java8-installer
+       - oracle-java8-set-default
+
+  - name: add mesos apt key
     apt_key:
        keyserver: hkp://keyserver.ubuntu.com:80
        id: E56151BF
        state: present
+
   - name: create mesosphere apt sources file
     template:
-       src: mesosphere_sources.j2
+       src: ../templates/mesosphere_sources.j2
        dest: /etc/apt/sources.list.d/mesosphere.list
+
   - name: install mesosphere
     apt:
        name: mesosphere
