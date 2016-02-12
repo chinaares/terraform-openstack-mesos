@@ -32,6 +32,3 @@ zk="${zk}/mesos"
 
 # Write the config to the template file
 echo "$zk" > ~/ansible/templates/master_etc_mesos_zk
-
-# Create a template file for /etc/zookeeper/conf/myid
-echo "{{ zk_id }}" > ~/ansible/templates/master_etc_zookeeper_conf_myid.j2
