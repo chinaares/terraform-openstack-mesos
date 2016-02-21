@@ -36,10 +36,50 @@
 
   - name: create /etc/zookeeper/conf/myid
     template:
-      src: ~/ansible/templates/master_etc_zookeeper_conf_myid.j2 
+      src: ~/ansible/templates/master_etc_zookeeper_conf_myid.j2
       dest: /etc/zookeeper/conf/myid
 
   - name: create /etc/mesos/zk
     copy:
       src: ~/ansible/templates/master_etc_mesos_zk
       dest: /etc/mesos/zk
+
+  - name: create /etc/zookeeper/conf/zoo.cfg
+    copy:
+      src: ~/ansible/templates/master_etc_zookeeper_conf_zoo_cfg
+      dest: /etc/zookeeper/conf/zoo.cfg
+
+  - name: create /etc/mesos-master/quorum
+    copy:
+      src: ~/ansible/templates/master_etc_mesos_master_quorum
+      dest: /etc/mesos-master/quorum
+
+  - name: create /etc/mesos-master/ip
+    template:
+      src: ~/ansible/templates/master_etc_mesos_master_ip.j2
+      dest: /etc/mesos-master/ip
+
+  - name: create /etc/mesos-master/hostname
+    template:
+      src: ~/ansible/templates/master_etc_mesos_master_ip.j2
+      dest: /etc/mesos-master/hostname
+
+  - name: create directory /etc/marathon/conf
+    file:
+      path: /etc/marathon/conf
+      state: directory
+
+  - name: create /etc/marathon/conf
+    template:
+      src: ~/ansible/templates/master_etc_mesos_master_ip.j2
+      dest: /etc/marathon/conf/hostname
+
+  - name: create /etc/marathon/conf/master
+    copy:
+      src: ~/ansible/templates/master_etc_mesos_zk
+      dest: /etc/marathon/conf/master
+
+  - name: create /etc/marathon/conf/zk
+    copy:
+      src: ~/ansible/templates/master_etc_marathon_conf_zk
+      dest: /etc/marathon/conf/zk
