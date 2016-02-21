@@ -133,8 +133,8 @@ resource "null_resource" "prep_config_server" {
          "cd ~; tar -xjf config-server-files.tar.bz2",
          "rm ~/config-server-files.tar.bz2",
          "chmod +x ~/scripts/prep-config-server.sh",
-         "chmod +x ~/scripts/update-inventory-masters.sh",
-         "chmod +x ~/scripts/update-inventory-slaves.sh",
+         "chmod +x ~/scripts/generate-master-configs.sh",
+         "chmod +x ~/scripts/generate-slave-configs.sh",
          "chmod 600 ~/.ssh/id_rsa",
          "ln -sf ~/confs/ansible.cfg ~/.ansible.cfg",
          "~/scripts/prep-config-server.sh"
@@ -161,7 +161,7 @@ resource "null_resource" "prep_mesos_masters" {
 
    provisioner "remote-exec" {
       inline = [
-         "~/scripts/update-inventory-masters.sh ${join(" ", openstack_compute_instance_v2.mesos_masters.*.network.0.fixed_ip_v4)}",
+         "~/scripts/generate-master-configs.sh ${join(" ", openstack_compute_instance_v2.mesos_masters.*.network.0.fixed_ip_v4)}",
       ]
    }
 }
