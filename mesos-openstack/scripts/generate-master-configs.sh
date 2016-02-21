@@ -35,7 +35,7 @@ echo "$zk/mesos" > ~/ansible/templates/master_etc_mesos_zk
 # Create config for /etc/zookeeper/conf/zoo.cfg
 #
 zk_id=1
-truncate ~/ansible/templates/master_etc_zookeeper_conf_zoo_cfg
+truncate -s 0 ~/ansible/templates/master_etc_zookeeper_conf_zoo_cfg
 for master in "$@";
 do
    echo "server.$zk_id=$master:2888:3888" >> ~/ansible/templates/master_etc_zookeeper_conf_zoo_cfg
