@@ -1,5 +1,6 @@
 ---
 - hosts: masters
+  #strategy: free
   remote_user: ubuntu
   become: true
   tasks:
@@ -45,8 +46,8 @@
       dest: /etc/mesos/zk
 
   - name: create /etc/zookeeper/conf/zoo.cfg
-    copy:
-      src: ~/ansible/templates/master_etc_zookeeper_conf_zoo_cfg
+    assemble:
+      src: ~/ansible/templates/zoo_cfg_fragments
       dest: /etc/zookeeper/conf/zoo.cfg
 
   - name: create /etc/mesos-master/quorum
@@ -83,3 +84,24 @@
     copy:
       src: ~/ansible/templates/master_etc_marathon_conf_zk
       dest: /etc/marathon/conf/zk
+
+  - name: stop & disable mesos-slave service
+    service:
+       name: mesos-slave
+       state: stopped
+       enabled: false
+
+  - name: restart zookeeper
+    service:
+       name: zookeeper
+       state: restarted
+
+  - name: restart mesos-master
+    service:
+       name: mesos-master
+       state: restarted
+
+  - name: restart marathon
+    service:
+       name: marathon
+       state: restarted

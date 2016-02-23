@@ -17,10 +17,11 @@ provider "openstack" {
 /*********************************
  * Resources                     *
  *********************************/
-resource "openstack_compute_secgroup_v2" "ssh_config_server" {
-   name = "ssh_config_server"
-   description = "Enable SSH to the config server"
+resource "openstack_compute_secgroup_v2" "config_server_sg" {
+   name = "config_server_sg"
+   description = "Security group for the config server"
    rule {
+      # Enable SSH
       from_port = 22
       to_port = 22
       ip_protocol = "tcp"
@@ -28,14 +29,22 @@ resource "openstack_compute_secgroup_v2" "ssh_config_server" {
    }
 }
 
-resource "openstack_compute_secgroup_v2" "ssh_mesos_cluster" {
-   name = "ssh_mesos_cluster"
-   description = "Enable SSH to the mesos masters & slaves"
+resource "openstack_compute_secgroup_v2" "mesos_masters_sg" {
+   name = "mesos_masters_sg"
+   description = "Security group for the mesos masters"
    rule {
+      # Enable SSH
       from_port = 22
       to_port = 22
       ip_protocol = "tcp"
       cidr = "10.0.0.0/24"
+   }
+   rule {
+      # Enable por5 5050 to allow access to marathon
+      from_port = 5050
+      to_port = 5050
+      ip_protocol = "tcp"
+      cidr = "0.0.0.0/0"
    }
 }
 
@@ -78,7 +87,7 @@ resource "openstack_compute_instance_v2" "config_server" {
    image_name = "${var.image}"
    flavor_name = "${var.flavor}"
    key_pair = "${openstack_compute_keypair_v2.keypair.name}"
-   security_groups = ["${openstack_compute_secgroup_v2.ssh_config_server.name}"]
+   security_groups = ["${openstack_compute_secgroup_v2.config_server_sg.name}"]
 
    network {
       name = "${openstack_networking_network_v2.mesos_net.name}"
@@ -93,7 +102,7 @@ resource "openstack_compute_instance_v2" "mesos_masters" {
    image_name = "${var.image}"
    flavor_name = "${var.flavor}"
    key_pair = "${openstack_compute_keypair_v2.keypair.name}"
-   security_groups = ["${openstack_compute_secgroup_v2.ssh_mesos_cluster.name}"]
+   security_groups = ["${openstack_compute_secgroup_v2.mesos_masters_sg.name}"]
    network {
       name = "${openstack_networking_network_v2.mesos_net.name}"
    }
@@ -162,6 +171,7 @@ resource "null_resource" "prep_mesos_masters" {
    provisioner "remote-exec" {
       inline = [
          "~/scripts/generate-master-configs.sh ${join(" ", openstack_compute_instance_v2.mesos_masters.*.network.0.fixed_ip_v4)}",
+         "ansible-playbook ~/ansible/playbooks/bootstrap-masters.yaml"
       ]
    }
 }
