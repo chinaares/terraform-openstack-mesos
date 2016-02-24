@@ -40,11 +40,32 @@ resource "openstack_compute_secgroup_v2" "mesos_masters_sg" {
       cidr = "10.0.0.0/24"
    }
    rule {
-      # Enable por5 5050 to allow access to marathon
+      # Enable port 5050 to allow access to marathon
       from_port = 5050
       to_port = 5050
       ip_protocol = "tcp"
       cidr = "0.0.0.0/0"
+   }
+   rule {
+      # Enable port 2181 to allow slaves to connect to master
+      from_port = 2181
+      to_port = 2181
+      ip_protocol = "tcp"
+      cidr = "10.0.0.0/24"
+   }
+   rule {
+      # Enable port 2888 to allow zookeeper peer traffic
+      from_port = 2888
+      to_port = 2888
+      ip_protocol = "tcp"
+      cidr = "10.0.0.0/24"
+   }
+   rule {
+      # Enable port 3888 for zookeeper leader election
+      from_port = 3888
+      to_port = 3888
+      ip_protocol = "tcp"
+      cidr = "10.0.0.0/24"
    }
 }
 

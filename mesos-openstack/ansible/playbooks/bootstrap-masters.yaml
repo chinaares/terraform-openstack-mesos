@@ -49,6 +49,7 @@
     assemble:
       src: ~/ansible/templates/zoo_cfg_fragments
       dest: /etc/zookeeper/conf/zoo.cfg
+      remote_src: false
 
   - name: create /etc/mesos-master/quorum
     copy:
