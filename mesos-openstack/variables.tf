@@ -36,3 +36,13 @@ variable "ssh_user_name" {
    type = "string"
    default = "ubuntu" 
 }
+
+variable "master_count" {
+   type = "string"
+   default = "3"
+}
+
+variable "slave_count" {
+   type = "string"
+   default = "3"
+}

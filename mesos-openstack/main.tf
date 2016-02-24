@@ -124,9 +124,22 @@ resource "openstack_compute_instance_v2" "config_server" {
 }
 
 resource "openstack_compute_instance_v2" "mesos_masters" {
-   count = 3
+   count = "${var.master_count}"
    depends_on = ["openstack_compute_instance_v2.config_server"]
    name = "mesos_master_${count.index + 1}"
+   image_name = "${var.image}"
+   flavor_name = "${var.flavor}"
+   key_pair = "${openstack_compute_keypair_v2.keypair.name}"
+   security_groups = ["${openstack_compute_secgroup_v2.mesos_masters_sg.name}"]
+   network {
+      name = "${openstack_networking_network_v2.mesos_net.name}"
+   }
+}
+
+resource "openstack_compute_instance_v2" "mesos_slaves" {
+   count = "${var.master_count}"
+   depends_on = ["openstack_compute_instance_v2.config_server"]
+   name = "mesos_slave_${count.index + 1}"
    image_name = "${var.image}"
    flavor_name = "${var.flavor}"
    key_pair = "${openstack_compute_keypair_v2.keypair.name}"
@@ -200,6 +213,26 @@ resource "null_resource" "prep_mesos_masters" {
       inline = [
          "~/scripts/generate-master-configs.sh ${join(" ", openstack_compute_instance_v2.mesos_masters.*.network.0.fixed_ip_v4)}",
          "ansible-playbook ~/ansible/playbooks/bootstrap-masters.yaml"
+      ]
+   }
+}
+
+resource "null_resource" "prep_mesos_slaves" {
+   depends_on = ["null_resource.prep_config_server"]
+   triggers {
+      instance_ids = "${join(", ", concat(openstack_compute_instance_v2.mesos_masters.*.id, openstack_compute_instance_v2.mesos_slaves.*.id))}"
+   }
+
+   connection {
+      host = "${openstack_compute_instance_v2.config_server.network.0.floating_ip}"
+      user = "${var.ssh_user_name}"
+      private_key = "${file("${var.ssh_key_file}")}"
+   }
+
+   provisioner "remote-exec" {
+      inline = [
+         "~/scripts/generate-slave-configs.sh ${join(" ", openstack_compute_instance_v2.mesos_slaves.*.network.0.fixed_ip_v4)}",
+         "ansible-playbook ~/ansible/playbooks/bootstrap-slaves.yaml"
       ]
    }
 }
