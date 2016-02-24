@@ -40,7 +40,14 @@ resource "openstack_compute_secgroup_v2" "mesos_masters_sg" {
       cidr = "10.0.0.0/24"
    }
    rule {
-      # Enable port 5050 to allow access to marathon
+      # Enable port 8080 to allow access to marathon
+      from_port = 8080
+      to_port = 8080
+      ip_protocol = "tcp"
+      cidr = "0.0.0.0/0"
+   }
+   rule {
+      # Enable port 5050 to allow access to mesos-master
       from_port = 5050
       to_port = 5050
       ip_protocol = "tcp"
