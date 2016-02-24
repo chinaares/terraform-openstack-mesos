@@ -1,9 +1,16 @@
 ---
+- hosts: localhost
+
 - hosts: masters
   #strategy: free
   remote_user: ubuntu
   become: true
   tasks:
+  - name: update /etc/hosts
+    template:
+       src: ~/ansible/templates/etc_hosts.j2
+       dest: /etc/hosts
+
   - name: add java repo (mesos depends on it)
     apt_repository:
        repo: ppa:webupd8team/java
