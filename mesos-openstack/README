@@ -4,7 +4,7 @@ This terraform templates uses the openstack provider to deploye a mesosphere clu
 Instructions
 ============
 
-1. The template assumes terraform is installed correct. Refert to https://www.terraform.io/ for details on how to.
+1. The template assumes terraform is installed correct. Refer to https://www.terraform.io/ for details on how to.
 
 2. The template picks up the following openstack specific environment variables to connect to the openstack cloud. Make sure that they are set appropriately. The easisest way is to log in to the Horizon dashboard, dowload the openrc file and execute it.
 
