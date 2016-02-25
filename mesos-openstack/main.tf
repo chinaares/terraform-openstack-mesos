@@ -76,6 +76,18 @@ resource "openstack_compute_secgroup_v2" "mesos_masters_sg" {
    }
 }
 
+resource "openstack_compute_secgroup_v2" "mesos_slaves_sg" {
+   name = "mesos_slaves_sg"
+   description = "Security group for the mesos slaves"
+   rule {
+      # Enable SSH
+      from_port = 22
+      to_port = 22
+      ip_protocol = "tcp"
+      cidr = "10.0.0.0/24"
+   }
+}
+
 resource "openstack_networking_network_v2" "mesos_net" {
    name = "mesos_net"
    admin_state_up = "true"
@@ -143,7 +155,7 @@ resource "openstack_compute_instance_v2" "mesos_slaves" {
    image_name = "${var.image}"
    flavor_name = "${var.flavor}"
    key_pair = "${openstack_compute_keypair_v2.keypair.name}"
-   security_groups = ["${openstack_compute_secgroup_v2.mesos_masters_sg.name}"]
+   security_groups = ["${openstack_compute_secgroup_v2.mesos_slaves_sg.name}"]
    network {
       name = "${openstack_networking_network_v2.mesos_net.name}"
    }
