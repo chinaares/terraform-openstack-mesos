@@ -15,7 +15,7 @@ Instructions
 
 3. The template requires a bunch of mandatory input parameters. These can be provided by creating a terraform.tfvars file in this mesos-openstack/ folder and adding the inputs to this file. Below is a sample input file.
 
-     $ cat terraform.tfvars 
+     $ cat terraform.tfvars
      image = "ubuntu-14.04-server-cloudimg-amd64"           # Name of the base image to use
      flavor = "m1.medium"                                   # Flavor to use for the master and slave nodes
      floating_ip_pool = "EXTNET"                            # Name of the external / public network
