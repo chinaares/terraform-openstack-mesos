@@ -1,2 +1,2 @@
-# terraform-templates
-A collection of terraform templates
+# terraform-openstack-mesos
+A terraform template to deploy a mesos cluster on OpenStack
