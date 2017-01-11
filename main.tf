@@ -29,6 +29,25 @@ resource "openstack_compute_secgroup_v2" "config_server_sg" {
    }
 }
 
+resource "openstack_compute_secgroup_v2" "vpn_server_sg" {
+   name = "vpn_server_sg"
+   description = "Security group for the vpn server"
+   rule {
+      # Enable SSH
+      from_port = 22
+      to_port = 22
+      ip_protocol = "tcp"
+      cidr = "0.0.0.0/0"
+   }
+   rule {
+      # Enable VPN Port
+      from_port = 1194
+      to_port = 1194
+      ip_protocol = "udp"
+      cidr = "0.0.0.0/0"
+   }
+}
+
 resource "openstack_compute_secgroup_v2" "mesos_masters_sg" {
    name = "mesos_masters_sg"
    description = "Security group for the mesos masters"
@@ -111,7 +130,12 @@ resource "openstack_networking_router_interface_v2" "mesos_gw_intf" {
    subnet_id = "${openstack_networking_subnet_v2.mesos_subnet.id}"
 }
 
-resource "openstack_compute_floatingip_v2" "floatingip" {
+resource "openstack_compute_floatingip_v2" "floatingip_config" {
+   depends_on = ["openstack_networking_router_interface_v2.mesos_gw_intf"]
+   pool = "${var.floating_ip_pool}"
+}
+
+resource "openstack_compute_floatingip_v2" "floatingip_vpn" {
    depends_on = ["openstack_networking_router_interface_v2.mesos_gw_intf"]
    pool = "${var.floating_ip_pool}"
 }
@@ -131,7 +155,21 @@ resource "openstack_compute_instance_v2" "config_server" {
 
    network {
       name = "${openstack_networking_network_v2.mesos_net.name}"
-      floating_ip = "${openstack_compute_floatingip_v2.floatingip.address}"
+      floating_ip = "${openstack_compute_floatingip_v2.floatingip_config.address}"
+   }
+}
+
+resource "openstack_compute_instance_v2" "vpn_server" {
+   depends_on = ["openstack_compute_instance_v2.config_server"]
+   name = "vpn_server"
+   image_name = "${var.image}"
+   flavor_name = "${var.flavor}"
+   key_pair = "${openstack_compute_keypair_v2.keypair.name}"
+   security_groups = ["${openstack_compute_secgroup_v2.vpn_server_sg.name}"]
+
+   network {
+      name = "${openstack_networking_network_v2.mesos_net.name}"
+      floating_ip = "${openstack_compute_floatingip_v2.floatingip_vpn.address}"
    }
 }
 
@@ -197,6 +235,7 @@ resource "null_resource" "prep_config_server" {
          "chmod +x ~/scripts/prep-config-server.sh",
          "chmod +x ~/scripts/generate-master-configs.sh",
          "chmod +x ~/scripts/generate-slave-configs.sh",
+         "chmod +x ~/scripts/generate-vpn-configs.sh",
          "chmod 600 ~/.ssh/id_rsa",
          "ln -sf ~/confs/ansible.cfg ~/.ansible.cfg",
          "~/scripts/prep-config-server.sh"
@@ -207,6 +246,33 @@ resource "null_resource" "prep_config_server" {
       # Cleanup the tar ball that was copied to the config server
       command = "rm config-server-files.tar.bz2"
    }
+}
+
+resource "null_resource" "prep_vpn_server" {
+   depends_on = ["null_resource.prep_config_server"]
+   triggers {
+      instance_ids = "${openstack_compute_instance_v2.vpn_server.id}"
+   }
+   connection {
+      host = "${openstack_compute_instance_v2.config_server.network.0.floating_ip}"
+      user = "${var.ssh_user_name}"
+      private_key = "${file("${var.ssh_key_file}")}"
+   }
+
+   provisioner "file" {
+      # SSH private key. config server will need this to ssh
+      # to the masters & slaves
+      source = "${var.ssh_key_file}"
+      destination = "~/.ssh/id_rsa"
+   }
+   
+   provisioner "remote-exec" {
+      inline = [
+         "~/scripts/generate-vpn-configs.sh ${join(" ", openstack_compute_instance_v2.vpn_server.*.network.0.fixed_ip_v4)}",
+         "ansible-playbook ~/ansible/playbooks/bootstrap-vpns.yaml"
+      ]
+   }
+
 }
 
 resource "null_resource" "prep_mesos_masters" {

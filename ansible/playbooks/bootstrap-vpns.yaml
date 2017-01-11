@@ -1,0 +1,15 @@
+---
+- hosts: localhost
+
+- hosts: vpns
+  #strategy: free
+  remote_user: ubuntu
+  become: true
+  roles:
+    - role: openvpn
+
+  tasks:
+  - name: update /etc/hosts
+    template:
+       src: ~/ansible/templates/etc_hosts.j2
+       dest: /etc/hosts
