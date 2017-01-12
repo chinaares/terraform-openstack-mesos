@@ -105,6 +105,13 @@ resource "openstack_compute_secgroup_v2" "mesos_slaves_sg" {
       ip_protocol = "tcp"
       cidr = "10.0.0.0/24"
    }
+   rule {
+      # Enable port 5051 to allow access to mesos-slave
+      from_port = 5051
+      to_port = 5051
+      ip_protocol = "tcp"
+      cidr = "10.0.0.0/24"
+   }
 }
 
 resource "openstack_networking_network_v2" "mesos_net" {
