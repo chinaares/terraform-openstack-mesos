@@ -76,7 +76,7 @@
       src: ~/ansible/templates/master_etc_mesos_master_quorum
       dest: /etc/mesos-master/quorum
 
-  - name: fixed problem -> Mesos-master: Shutdown failed on fd=24: Transport endpoint is not connected 
+  - name: fixed problem -> Mesos-master --- Shutdown failed on fd=24, Transport endpoint is not connected 
     shell: echo "MESOS_QUORUM=\`cat /etc/mesos-master/quorum\`" | sudo tee -a /etc/default/mesos-master
 
   - name: create /etc/mesos-master/ip
