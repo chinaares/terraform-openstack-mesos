@@ -184,8 +184,8 @@ resource "openstack_compute_instance_v2" "mesos_masters" {
    count = "${var.master_count}"
    depends_on = ["openstack_compute_instance_v2.config_server"]
    name = "mesos_master_${count.index + 1}"
-   image_name = "${var.image}"
-   flavor_name = "${var.flavor}"
+   image_name = "${var.master["image"]}"
+   flavor_name = "${var.master["flavor"]}"
    key_pair = "${openstack_compute_keypair_v2.keypair.name}"
    security_groups = ["${openstack_compute_secgroup_v2.mesos_masters_sg.name}"]
    network {
@@ -197,8 +197,8 @@ resource "openstack_compute_instance_v2" "mesos_slaves" {
    count = "${var.master_count}"
    depends_on = ["openstack_compute_instance_v2.config_server"]
    name = "mesos_slave_${count.index + 1}"
-   image_name = "${var.image}"
-   flavor_name = "${var.flavor}"
+   image_name = "${var.slave["image"]}"
+   flavor_name = "${var.slave["flavor"]}"
    key_pair = "${openstack_compute_keypair_v2.keypair.name}"
    security_groups = ["${openstack_compute_secgroup_v2.mesos_slaves_sg.name}"]
    network {

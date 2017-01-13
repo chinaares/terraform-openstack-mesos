@@ -9,6 +9,24 @@ variable "flavor" {
    type = "string"
 }
 
+variable "master" {
+  type = "map"
+
+  default = {
+    image = ""
+    flavor = ""
+  }
+}
+
+variable "slave" {
+  type = "map"
+
+  default = {
+    image = ""
+    flavor = ""
+  }
+}
+
 variable "floating_ip_pool" {
    type = "string"
 }
