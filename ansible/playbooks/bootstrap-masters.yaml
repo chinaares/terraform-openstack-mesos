@@ -87,10 +87,11 @@
       src: ~/ansible/templates/master_etc_mesos_master_ip.j2
       dest: /etc/mesos-master/ip
 
-  - name: create /etc/mesos-master/hostname
-    template:
-      src: ~/ansible/templates/master_etc_mesos_master_ip.j2
-      dest: /etc/mesos-master/hostname
+  # because marathon show as `Inactive Frameworks` in mesos, but actually running
+  #- name: create /etc/mesos-master/hostname
+    #template:
+      #src: ~/ansible/templates/master_etc_mesos_master_ip.j2
+      #dest: /etc/mesos-master/hostname
 
   - name: create directory /etc/marathon/conf
     file:
