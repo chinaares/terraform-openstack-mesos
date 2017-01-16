@@ -66,6 +66,13 @@ resource "openstack_compute_secgroup_v2" "mesos_masters_sg" {
       cidr = "0.0.0.0/0"
    }
    rule {
+      # Enable port 4400 to allow access to chronos
+      from_port = 4400
+      to_port = 4400
+      ip_protocol = "tcp"
+      cidr = "0.0.0.0/0"
+   }
+   rule {
       # Enable port 5050 to allow access to mesos-master
       from_port = 5050
       to_port = 5050
