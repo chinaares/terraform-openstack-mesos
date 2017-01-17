@@ -8,7 +8,7 @@ sudo apt-add-repository -y ppa:ansible/ansible
 sudo apt-get update -y
 #https://launchpad.net/~ansible/+archive/ubuntu/ansible
 #sudo apt-get install -y ansible
-sudo apt-get install -y ansible=2.2.0.0-1ppa~trusty
+sudo apt-get install -y ansible=2.2.1.0-1ppa~trusty
 #(install newer version ansible)
 #wget https://launchpad.net/~ansible/+archive/ubuntu/ansible-1.9/+files/ansible_1.9.4-1ppa~trusty_all.deb -O /tmp/ansible.deb
 #wget https://launchpad.net/~ansible/+archive/ubuntu/ansible/+files/ansible_2.2.0.0-1ppa~trusty_all.deb -O /tmp/ansible.deb
