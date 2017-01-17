@@ -100,6 +100,13 @@ resource "openstack_compute_secgroup_v2" "mesos_masters_sg" {
       ip_protocol = "tcp"
       cidr = "10.0.0.0/24"
    }
+   rule {
+      # Enable port 40000-50000  to allow masters access to framework communicate 
+      from_port = 40000
+      to_port = 50000
+      ip_protocol = "tcp"
+      cidr = "10.0.0.0/24"
+   }
 }
 
 resource "openstack_compute_secgroup_v2" "mesos_slaves_sg" {
@@ -195,19 +202,29 @@ resource "openstack_compute_instance_v2" "mesos_masters" {
    flavor_name = "${var.master["flavor"]}"
    key_pair = "${openstack_compute_keypair_v2.keypair.name}"
    security_groups = ["${openstack_compute_secgroup_v2.mesos_masters_sg.name}"]
+   user_data = <<EOF
+#!/bin/bash -v
+sudo rm -f /etc/cloud/cloud.cfg.d/99-manage-etc-hosts.cfg
+EOF
+
    network {
       name = "${openstack_networking_network_v2.mesos_net.name}"
    }
 }
 
 resource "openstack_compute_instance_v2" "mesos_slaves" {
-   count = "${var.master_count}"
+   count = "${var.slave_count}"
    depends_on = ["openstack_compute_instance_v2.config_server"]
    name = "mesos_slave_${count.index + 1}"
    image_name = "${var.slave["image"]}"
    flavor_name = "${var.slave["flavor"]}"
    key_pair = "${openstack_compute_keypair_v2.keypair.name}"
    security_groups = ["${openstack_compute_secgroup_v2.mesos_slaves_sg.name}"]
+   user_data = <<EOF
+#!/bin/bash -v
+sudo rm -f /etc/cloud/cloud.cfg.d/99-manage-etc-hosts.cfg
+EOF
+
    network {
       name = "${openstack_networking_network_v2.mesos_net.name}"
    }
