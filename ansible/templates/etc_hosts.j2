@@ -8,7 +8,8 @@ ff02::1 ip6-allnodes
 ff02::2 ip6-allrouters
 ff02::3 ip6-allhosts
 
-127.0.1.1 {{ ansible_default_ipv4.address }}
-127.0.1.1 {{ ansible_hostname }}
-{{ hostvars['localhost']['ansible_eth0']['ipv4']['address'] }} {{ hostvars['localhost']['ansible_eth0']['ipv4']['address'] }}
+#127.0.1.1 {{ ansible_default_ipv4.address }}
+#127.0.1.1 {{ ansible_hostname }}
+#{{ hostvars['localhost']['ansible_eth0']['ipv4']['address'] }} {{ hostvars['localhost']['ansible_eth0']['ipv4']['address'] }}
+{{ ansible_default_ipv4.address }} {{ ansible_fqdn }} {{ ansible_hostname }}
 192.161.14.101 registry.sumapay.com
