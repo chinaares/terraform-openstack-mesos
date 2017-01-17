@@ -71,13 +71,18 @@
       dest: /etc/zookeeper/conf/zoo.cfg
       remote_src: false
 
+  - name: create /etc/mesos-master/cluster
+    template:
+      src: ~/ansible/templates/master_etc_mesos_master_cluster.j2
+      dest: /etc/mesos-master/cluster
+
   - name: create /etc/mesos-master/quorum
     copy:
       src: ~/ansible/templates/master_etc_mesos_master_quorum
       dest: /etc/mesos-master/quorum
 
   - name: clear existing MESOS_QUORUM entries from /etc/default/mesos-master
-    shell: sudo sed -i '' '/MESOS_QUORUM$/d' /etc/default/mesos-master
+    shell: "[ -f '/etc/default/mesos-master' ] && sudo sed -i '' '/MESOS_QUORUM$/d' /etc/default/mesos-master || /bin/true"
 
   - name: fixed problem -> Mesos-master --- Shutdown failed on fd=24, Transport endpoint is not connected 
     shell: echo "MESOS_QUORUM=\`cat /etc/mesos-master/quorum\`" | sudo tee -a /etc/default/mesos-master
@@ -88,10 +93,10 @@
       dest: /etc/mesos-master/ip
 
   # because marathon show as `Inactive Frameworks` in mesos, but actually running
-  #- name: create /etc/mesos-master/hostname
-    #template:
-      #src: ~/ansible/templates/master_etc_mesos_master_ip.j2
-      #dest: /etc/mesos-master/hostname
+  - name: create /etc/mesos-master/hostname
+    template:
+      src: ~/ansible/templates/master_etc_mesos_master_ip.j2
+      dest: /etc/mesos-master/hostname
 
   - name: create directory /etc/marathon/conf
     file:
