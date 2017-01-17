@@ -5,3 +5,4 @@
 *.tfvars
 *.swp
 /clients
+ssh-keys
