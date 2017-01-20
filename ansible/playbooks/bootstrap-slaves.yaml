@@ -28,9 +28,9 @@
 
   - name: download jdk file with check (sha256)
     get_url:
-      url: http://192.166.69.12/Softwares/Devtools/Java/jdk/jdk8/jdk-8u111-linux-x64.tar.gz
-      dest: /var/cache/oracle-jdk8-installer/jdk-8u111-linux-x64.tar.gz
-      sha256sum: 187EDA2235F812DDB35C352B5F9AA6C5B184D611C2C9D0393AFB8031D8198974
+      url: http://192.166.69.12/Softwares/Devtools/Java/jdk/jdk8/jdk-8u121-linux-x64.tar.gz
+      dest: /var/cache/oracle-jdk8-installer/jdk-8u121-linux-x64.tar.gz
+      sha256sum: 97E30203F1AEF324A07C94D9D078F5D19BB6C50E638E4492722DEBCA588210BC
       validate_certs: no
 
   - name: install java(set java 8 default)
