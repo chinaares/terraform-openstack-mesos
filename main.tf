@@ -102,8 +102,8 @@ resource "openstack_compute_secgroup_v2" "mesos_masters_sg" {
    }
    rule {
       # Enable port 40000-50000  to allow masters access to framework communicate 
-      from_port = 40000
-      to_port = 50000
+      from_port = 30000
+      to_port = 60000
       ip_protocol = "tcp"
       cidr = "10.0.0.0/24"
    }
