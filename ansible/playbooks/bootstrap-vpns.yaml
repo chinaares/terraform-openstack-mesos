@@ -7,3 +7,20 @@
   become: true
   roles:
     - role: openvpn
+
+  tasks:
+  - name: copy regist dns script to host
+    copy:
+      src: ~/scripts/regist-to-dns.sh
+      dest: ~/
+      mode: u+rwx
+
+  - name: regist local host to dns server
+    shell: sudo sed -i "s/exit 0$/\/root\/regist-to-dns.sh\nexit 0/g" /etc/rc.local && sudo /etc/init.d/rc.local start
+
+  - name: add search domain, update /etc/resolv.conf
+    shell: echo 'search novalocal' | sudo tee /etc/resolvconf/resolv.conf.d/tail && sudo resolvconf -u
+
+  - name: dnsmasq need restart for apply changge
+    shell: sudo service dnsmasq restart
+

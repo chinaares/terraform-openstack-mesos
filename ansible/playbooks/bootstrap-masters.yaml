@@ -11,6 +11,18 @@
        src: ~/ansible/templates/etc_hosts.j2
        dest: /etc/hosts
 
+  - name: copy regist dns script to host
+    copy:
+      src: ~/scripts/regist-to-dns.sh
+      dest: ~/
+      mode: u+rwx
+
+  - name: regist local host to dns server
+    shell: sudo sed -i "s/exit 0$/\/root\/regist-to-dns.sh\nexit 0/g" /etc/rc.local && sudo /etc/init.d/rc.local start
+
+  - name: add search domain, update /etc/resolv.conf
+    shell: echo 'search novalocal' | sudo tee /etc/resolvconf/resolv.conf.d/tail && sudo resolvconf -u
+
   - name: modify apt proxy config bypass ppa.launchpad.net because webupd8team/java Hash Sum mismatch
     shell: echo "Acquire::http::Proxy::ppa.launchpad.net \"DIRECT\";" | sudo tee -a /etc/apt/apt.conf.d/90-apt-proxy.conf
 
@@ -28,7 +40,7 @@
 
   - name: download jdk file with check (sha256)
     get_url:
-      url: http://192.166.69.12/Softwares/Devtools/Java/jdk/jdk8/jdk-8u121-linux-x64.tar.gz
+      url: http://192.161.14.24/download/softwares/java/jdk/jdk-8u121-linux-x64.tar.gz
       dest: /var/cache/oracle-jdk8-installer/jdk-8u121-linux-x64.tar.gz
       sha256sum: 97E30203F1AEF324A07C94D9D078F5D19BB6C50E638E4492722DEBCA588210BC
       validate_certs: no
