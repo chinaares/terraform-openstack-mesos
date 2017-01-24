@@ -27,6 +27,27 @@ resource "openstack_compute_secgroup_v2" "config_server_sg" {
       ip_protocol = "tcp"
       cidr = "0.0.0.0/0"
    }
+   rule {
+      # Enable DNS Port
+      from_port = 53
+      to_port = 53
+      ip_protocol = "tcp"
+      cidr = "0.0.0.0/0"
+   }
+   rule {
+      # Enable DNS Port
+      from_port = 53
+      to_port = 53
+      ip_protocol = "udp"
+      cidr = "0.0.0.0/0"
+   }
+   rule {
+      # Enable API Port
+      from_port = 1080
+      to_port = 1080
+      ip_protocol = "tcp"
+      cidr = "0.0.0.0/0"
+   }
 }
 
 resource "openstack_compute_secgroup_v2" "vpn_server_sg" {
@@ -126,6 +147,20 @@ resource "openstack_compute_secgroup_v2" "mesos_slaves_sg" {
       ip_protocol = "tcp"
       cidr = "10.0.0.0/24"
    }
+   rule {
+      # Enable port 9090 to allow access to mesos-slave
+      from_port = 9090
+      to_port = 9090
+      ip_protocol = "tcp"
+      cidr = "10.0.0.0/24"
+   }
+   rule {
+      # Enable port 40000-50000  to allow masters access to framework communicate 
+      from_port = 30000
+      to_port = 60000
+      ip_protocol = "tcp"
+      cidr = "10.0.0.0/24"
+   }
 }
 
 resource "openstack_networking_network_v2" "mesos_net" {
@@ -137,7 +172,7 @@ resource "openstack_networking_subnet_v2" "mesos_subnet" {
    name = "mesos_subnet"
    network_id = "${openstack_networking_network_v2.mesos_net.id}"
    cidr = "10.0.0.0/24"
-   dns_nameservers = ["${var.dns_server1}", "${var.dns_server2}"]
+   dns_nameservers = ["10.0.0.3", "${var.dns_server1}", "${var.dns_server2}"]
    ip_version = 4
 }
 
@@ -261,12 +296,13 @@ resource "null_resource" "prep_config_server" {
 
    provisioner "remote-exec" {
       inline = [
-         "cd ~; tar -xjf config-server-files.tar.bz2",
+         "cd ~; tar -mxjf config-server-files.tar.bz2",
          "rm ~/config-server-files.tar.bz2",
          "chmod +x ~/scripts/prep-config-server.sh",
          "chmod +x ~/scripts/generate-master-configs.sh",
          "chmod +x ~/scripts/generate-slave-configs.sh",
          "chmod +x ~/scripts/generate-vpn-configs.sh",
+         "chmod +x ~/scripts/regist-to-dns.sh",
          "chmod 600 ~/.ssh/id_rsa",
          "ln -sf ~/confs/ansible.cfg ~/.ansible.cfg",
          "~/scripts/prep-config-server.sh"
