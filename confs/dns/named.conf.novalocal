@@ -1,0 +1,17 @@
+key "rndc-key" {
+        algorithm hmac-md5;
+        secret "I0MRfO6pP/+p0GWYtIRv1A==";
+};
+
+zone "novalocal" {
+        type master;
+        file "/var/cache/bind/db.novalocal";
+        allow-update { key rndc-key; };
+};
+
+zone "0.0.10.in-addr.arpa"  {
+    type master;
+    file "/var/cache/bind/db.10.0.0";
+    allow-update { key rndc-key; };
+};
+
